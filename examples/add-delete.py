@@ -24,6 +24,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
+from __future__ import absolute_import, division, print_function
+#python version compatability
+import sys
+if sys.version_info < (3,0):
+    from future_builtins import zip, map
 import numpy as np
 from numpy import sin, cos, pi, sqrt
 from math import atan2
@@ -32,9 +37,14 @@ import pyglet
 from pyglet import gl
 from collections import namedtuple
 from operator import add
+#import pdb
 
 from numpy_ecs.global_allocator import GlobalAllocator
 from numpy_ecs.components import DefraggingArrayComponent as Component
+
+seed = 123456789
+random.seed(seed)
+np.random.seed(seed)
 
 dtype_tuple  = namedtuple('Dtype',('np','gl'))
 vert_dtype   = dtype_tuple(np.float32,gl.GL_FLOAT)
@@ -133,10 +143,11 @@ def update_render_verts(render_verts,poly_verts,positions,rotator,indices=[]):
     #and simplified.  work it out on paper if you don't believe me.
     xs, ys, rs, xhelpers, yhelpers = (poly_verts[:,x] for x in range(5))
     pts = render_verts  
-
     #print 'shapes:',angles.shape
     pts[:,0] = xhelpers*cos_ts[indices]
     pts[:,1] = yhelpers*sin_ts[indices]
+    #IndexError: array used as indices= must be integer type. Sometime the  
+    # function runs with empty parameters as indices =[]
     pts[:,0] -= pts[:,1]                 
     pts[:,0] *= rs                
     pts[:,0] += xs                
@@ -150,6 +161,7 @@ def update_render_verts(render_verts,poly_verts,positions,rotator,indices=[]):
     pts[:,1] += positions[indices,1]
 
 def update_display(render_verts,colors):
+    #print("display called")
     gl.glClearColor(0.2, 0.4, 0.5, 1.0)
     gl.glBlendFunc (gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)                             
     gl.glEnable (gl.GL_BLEND)                                                            
@@ -165,6 +177,7 @@ def update_display(render_verts,colors):
 
 
 def add_some(n,n2=None,allocator=allocator):
+    #pdb.set_trace()
     '''add n random polygons to allocator
 
     There's two types of polygons. if only n is given, will distribute randomly.
@@ -178,9 +191,9 @@ def add_some(n,n2=None,allocator=allocator):
       a = random.random()
       n1 = int(n*a)
       n2 = n-n1
-    else:
+    else: 
       n1 = n
-      n2 = 0
+      n2 = 0 #chemsed comment: it doesn't seem to work as intended
 
     positions = [(x*width,y*height,z) for x,y,z in np.random.random((n1,3))]
     rs = [r*50 for r in np.random.random(n1)] 
@@ -204,14 +217,18 @@ def add_some(n,n2=None,allocator=allocator):
 
 
 def delete_some(n,allocator=allocator):
-    guids = random.sample(allocator.guids,n)
+    #pdb.set_trace()
+    guids = random.sample(allocator.guids,n) 
+    #Value Error: sample (102,101) larger than population (4)
+    #Something is wrong with the guids and _next_guid method in global_allocator.py
+    # I noticed that deleting an element in tuple leave them to "None" at the index
     for guid in guids:
         allocator.delete(guid)
 
 
 
 if __name__ == '__main__':
-
+    #pdb.set_trace()
     width, height = 640,480
     window = pyglet.window.Window(width, height,vsync=False)
     #window = pyglet.window.Window(fullscreen=True,vsync=False)
@@ -227,8 +244,10 @@ if __name__ == '__main__':
 
     get_sections = allocator.selectors_from_component_query
 
+   
     @window.event
     def on_draw():
+        #print("draw called")
         window.clear()
 
         allocator._defrag()
@@ -241,6 +260,7 @@ if __name__ == '__main__':
         broadcast = ('position__to__poly_verts',)
         sections = get_sections(render_verts + broadcast)
         indices = sections.pop(broadcast[0])
+
         update_render_verts(*(sections[name] for name in render_verts),indices=indices)
 
         draw =('render_verts','color')
@@ -250,8 +270,8 @@ if __name__ == '__main__':
         fps_display.draw()
 
     pyglet.clock.schedule(lambda _: None)
+    #pdb.set_trace()
     pyglet.clock.schedule_interval(lambda x,*y: add_some(*y),1,2)
+    #pdb.set_trace()
     pyglet.clock.schedule_interval(lambda x,*y: delete_some(*y),2,4)
     pyglet.app.run()
-
-

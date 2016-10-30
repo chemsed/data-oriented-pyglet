@@ -72,8 +72,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # ]
 #
 #
-from table import Table, INDEX_SEPERATOR
+from __future__ import absolute_import, division, print_function
+import sys
+#python version compatability
+if sys.version_info < (3,0):
+    from future_builtins import zip, map
+
 import numpy as np
+from .table import Table, INDEX_SEPERATOR
 
 def verify_component_schema(allocation_schema):
     '''given an allocation schema as a list of lists, return True if the schema
@@ -226,7 +232,7 @@ class GlobalAllocator(object):
         known_names = self.names
         for x in query:
             if (sep not in x) and (x not in known_names):
-                print "%s in query is not valid"%x
+                print(x, "in query is not valid")
                 return False
         return True
 
@@ -292,14 +298,14 @@ if __name__ == '__main__':
     to_add.append({'component_1':3,'component_3':(7,8,9),'component_2':((5,50),(6,60)),})
     to_add.append({'component_1':4,'component_3':(10,11,12),'component_2':((7,70),(8,80)),})
     to_add.append({'component_1':7,'component_3':(19,20,21),})
-    trash = map(allocator.add,to_add)
+    trash = list(map(allocator.add,to_add))
     #allocator.add(to_add2)
     allocator._defrag()
     #print "d1:",d1[:]
 
     to_add = []
     to_add.append({'component_1':8,'component_3':(22,23,24),})
-    trash = map(allocator.add,to_add)
+    trash = list(map(allocator.add,to_add))
     #allocator.add(to_add2)
     allocator._defrag()
     #print "d1:",d1[:]
@@ -308,7 +314,7 @@ if __name__ == '__main__':
     to_add.append({'component_1':5,'component_3':(13,14,15),'component_2':((9,90),(10,100)),})
     to_add.append({'component_1':6,'component_3':(16,17,18),'component_2':((11,110),(12,120)),})
     to_add.append({'component_1':9,'component_3':(25,26,27),})
-    trash = map(allocator.add,to_add)
+    trash = list(map(allocator.add,to_add))
     #allocator.add(to_add2)
     allocator._defrag()
     assert np.all(d1[:9] == np.array([1,2,3,4,5,6,7,8,9]))

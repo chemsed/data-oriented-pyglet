@@ -26,15 +26,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 '''
-
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import absolute_import, division, print_function
+#python version compatability
+import sys
+if sys.version_info < (3,0):
+    from future_builtins import zip, map
 import numpy as np
 import pyglet
 from pyglet import gl
 from math import pi, sin, cos,atan2,sqrt
 import time 
 from collections import namedtuple
+from functools import reduce
 
+#for reproduceable output
+seed = 123456789
+np.random.seed(seed)
 
 #Keep datatypes between numpy and gl consistent
 dtype_tuple = namedtuple('Dtype',('np_type','gl_type'))
@@ -197,5 +204,3 @@ def on_draw():
 pyglet.clock.schedule(lambda _: None)
 
 pyglet.app.run()
-
-

@@ -29,6 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import numpy as np
+#python version compatability
+import sys
+if sys.version_info < (3,0):
+    from future_builtins import zip, map
 from numpy import sin, cos, pi, sqrt
 from math import atan2
 import pyglet
@@ -38,6 +42,10 @@ from operator import add
 
 from numpy_ecs.global_allocator import GlobalAllocator
 from numpy_ecs.components import DefraggingArrayComponent as Component
+
+#for reproduceable output
+seed = 123456789
+np.random.seed(seed)
 
 dtype_tuple  = namedtuple('Dtype',('np','gl'))
 vert_dtype   = dtype_tuple(np.float32,gl.GL_FLOAT)

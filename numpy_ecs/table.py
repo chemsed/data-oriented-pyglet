@@ -32,7 +32,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
-
+from __future__ import absolute_import, division, print_function
+#python version compatability
+import sys
+if sys.version_info < (3,0):
+    from future_builtins import zip, map
 from collections import MutableMapping, Sequence
 from types import GeneratorType
 
@@ -202,7 +206,7 @@ class Table(object):
         known_ids = self.known_class_ids
         id_column = self.class_ids
         expressed_ids = filter(lambda x: x in id_column,known_ids)
-        starts = map(id_column.index,expressed_ids)
+        starts = list(map(id_column.index,expressed_ids))
         assert all(starts[x]<starts[x+1] for x in range(len(starts)-1)),\
             'id_column must be in same order as known_ids'
         stops = starts[1:]+[None]
@@ -395,7 +399,7 @@ class Table(object):
         #TODO make this a generator?
         ret = []
         for new_capacity, col_sources, col_targets in zip(
-                new_ends, zip(*sources), zip(*targets)):
+                new_ends, list(zip(*sources)), list(zip(*targets))):
             #print "sources:"
             col_sources = tuple((s for s in col_sources if slice_is_not_empty(s)))
             #print "targets:"
@@ -522,7 +526,7 @@ if __name__ == '__main__':
       except AssertionError:
         pass
       else:
-        print "Test failed: re-added staged guid"
+        print("Test failed: re-added staged guid")
 
     for capacity, sources, targets in t.compress():
       assert capacity == 6, "capacity set to %s instead of 6" % alloc
@@ -546,11 +550,11 @@ if __name__ == '__main__':
     except AssertionError:
       pass
     else:
-      print "Test failed:  re-added allocated guid"
+      print("Test failed:  re-added allocated guid")
       
     #test adding an entity to a non-empty table
     t.stage_add(4,(10,10))
-    print "staged_adds:",t._staged_adds
+    print("staged_adds:",t._staged_adds)
 
     for n, (capacity, sources, targets) in enumerate(t.compress()):
       assert capacity == 16, "capacity set to %s instead of 16" % alloc

@@ -19,6 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 import numpy as np
 from numpy import sin, cos, pi, sqrt
+#python version compatability
+import sys
+if sys.version_info < (3,0):
+    from future_builtins import zip, map
 from math import atan2
 import pyglet
 from pyglet import gl
@@ -27,6 +31,12 @@ from operator import add
 
 from numpy_ecs.global_allocator import GlobalAllocator
 from numpy_ecs.components import DefraggingArrayComponent as Component
+
+#for reproduceable output
+seed = 123456789
+random.seed(seed)
+np.random.seed(seed)
+
 
 window_width, window_height = 640,480
 
@@ -56,7 +66,7 @@ def wind_pts(pts,reshape=False):
     '''take clockwise or counter clockwise points and wind them as would
     be needed for rendering as triangle strips'''
     if reshape:
-        pts = zip(pts[::3],pts[1::3],pts[2::3])
+        pts = list(zip(pts[::3],pts[1::3],pts[2::3]))
     l = len(pts)
     cw = pts[:l//2]
     ccw = pts[l//2:][::-1]
